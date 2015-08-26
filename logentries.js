@@ -11,11 +11,26 @@ if(Meteor.settings && Meteor.settings.logentries && Meteor.settings.logentries.t
     return argString || ' ';
   };
 
-  console.debug = function () { log.debug(convert(Array.prototype.slice.call(arguments))); };
-  console.log = function () { log.info(convert(Array.prototype.slice.call(arguments))); };
-  console.info = function () { log.info(convert(Array.prototype.slice.call(arguments))); };
-  console.warn = function () { log.warning(convert(Array.prototype.slice.call(arguments))); };
-  console.error = function () { log.err(convert(Array.prototype.slice.call(arguments))); };
+  var consoleLogOrig = console.log;
+
+  var logAndCatch = function(level, argArray) {
+    try {
+      log[level](convert(argArray));
+    } catch (e) {
+      consoleLogOrig.call(console, e);
+    }
+  };
+
+  console.log = function () {
+    // special case for meteor dev mode
+    if(arguments.length === 1 && arguments[0] === 'LISTENING') return consoleLogOrig.call(console, 'LISTENING');
+    logAndCatch('info', Array.prototype.slice.call(arguments));
+  };
+
+  console.debug = function () { logAndCatch('debug', Array.prototype.slice.call(arguments)); };
+  console.info = function () { logAndCatch('info', Array.prototype.slice.call(arguments)); };
+  console.warn = function () { logAndCatch('warning', Array.prototype.slice.call(arguments)); };
+  console.error = function () { logAndCatch('err', Array.prototype.slice.call(arguments)); };
 
   // test border cases
   // console.log('start');
@@ -30,4 +45,8 @@ if(Meteor.settings && Meteor.settings.logentries && Meteor.settings.logentries.t
   // console.log('');
   // console.log('test', undefined, null, false, 0, '');
   // console.log('end');
+  // console.debug('test', 'debug');
+  // console.info('test', 'info');
+  // console.warn('test', 'warn');
+  // console.error('test', 'error');
 }

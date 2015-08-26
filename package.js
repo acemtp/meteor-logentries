@@ -1,6 +1,6 @@
 Package.describe({
   name: 'acemtp:logentries',
-  version: '1.0.14_1',
+  version: '1.0.14_2',
   summary: 'Override console.log (and others) to send logs to Logentries',
   git: 'https://github.com/efounders/meteor-logentries',
   documentation: 'README.md'
